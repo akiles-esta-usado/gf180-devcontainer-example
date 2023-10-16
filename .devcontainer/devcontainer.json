@@ -1,0 +1,15 @@
+// More info: https://containers.dev/implementors/json_reference/
+{
+	"image": "git.1159.cl/mario1159/chipathon-tools-desktop:latest",
+	"features": {
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mads-hartmann.bash-ide-vscode",
+				"ms-toolsai.jupyter",
+				"ms-python.vscode-pylance"
+			]
+		}
+	}
+}
