@@ -20,12 +20,12 @@
 	},
 	"mounts": [
 		{
-			"source": "\\\\wsl.localhost\\Ubuntu\\tmp\\.X11-unix",
+			"source": "\\\\wsl.localhost\\${localEnv:WSL_DISTRO}\\tmp\\.X11-unix",
 			"target": "/tmp/.X11-unix",
 			"type": "bind"
 		},
 		{
-			"source": "\\\\wsl.localhost\\Ubuntu\\tmp\\wslg",
+			"source": "\\\\wsl.localhost\\${localEnv:WSL_DISTRO}\\tmp\\wslg",
 			"target": "/mnt/wslg",
 			"type": "bind"
 		}
@@ -35,5 +35,6 @@
 		"XDG_RUNTIME_DIR": "/mnt/wslg/runtime-dir",
 		"WAYLAND_DISPLAY": "wayland-0",
 		"PULSE_SERVER": "unix:/mnt/wslg/PulseServer"
-	}
+	},
+	"initializeCommand": "powershell -noprofile -nologo -ExecutionPolicy Bypass .devcontainer\\set-wsl-distro.ps1"
 }
