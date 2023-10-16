@@ -1,0 +1,14 @@
+# Auto detect text files and perform LF normalization
+*               text=auto
+.png filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.sh            text        eol=lf
+*.py            text        eol=lf
+*.bat           text        eol=crlf
+desktopinit     text        eol=lf
+klayout         text        eol=lf
+.bashrc         text        eol=lf
+setwallpaper    text        eol=lf
+startserver     text        eol=lf
+*.desktop       text        eol=lf
+xschemrc        text        eol=lf
