@@ -38,5 +38,5 @@
 		"WAYLAND_DISPLAY": "wayland-0",
 		"PULSE_SERVER": "unix:/mnt/wslg/PulseServer"
 	},
-	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"postCreateCommand": "bash .devcontainer/setup.sh"
 }
