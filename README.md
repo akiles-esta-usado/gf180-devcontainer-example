@@ -1,6 +1,6 @@
 # GF180 Dev Environment
 
-Based on [Sebastian](https://github.com/P-coryan/gf180-automated-design) work, this 
+Based on [Patricio](https://github.com/P-coryan/gf180-automated-design) work, this 
 example shows how to use DevContainer to develop ic layout with Klayout.
 
 The project is structured as a python package, and uses GdsFactory. All dependencies
