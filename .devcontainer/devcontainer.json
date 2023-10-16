@@ -2,12 +2,10 @@
 {
 	"name": "chipathon-devcontainer",
 	"image": "git.1159.cl/mario1159/chipathon-tools-desktop:latest",
-	"features": {
-	},
+	"features": {},
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"mads-hartmann.bash-ide-vscode",
 				"ms-toolsai.jupyter",
 				"ms-python.vscode-pylance",
 				"ms-python.black-formatter"
@@ -16,17 +14,17 @@
 				"[python]": {
 					"editor.defaultFormatter": "ms-python.black-formatter",
 					"editor.formatOnSave": true
-				  }
+				}
 			}
 		}
 	},
 	"mounts": [
-		{ 
+		{
 			"source": "\\\\wsl.localhost\\Ubuntu\\tmp\\.X11-unix",
 			"target": "/tmp/.X11-unix",
 			"type": "bind"
 		},
-		{ 
+		{
 			"source": "\\\\wsl.localhost\\Ubuntu\\tmp\\wslg",
 			"target": "/mnt/wslg",
 			"type": "bind"
@@ -37,6 +35,5 @@
 		"XDG_RUNTIME_DIR": "/mnt/wslg/runtime-dir",
 		"WAYLAND_DISPLAY": "wayland-0",
 		"PULSE_SERVER": "unix:/mnt/wslg/PulseServer"
-	},
-	"postCreateCommand": "bash .devcontainer/setup.sh"
+	}
 }
