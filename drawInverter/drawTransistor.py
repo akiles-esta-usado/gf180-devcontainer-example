@@ -9,26 +9,15 @@ def drawTransistor(
     folding: int = 1,
 ) -> gf.Component:
     # desde el origen (0.0) el primer source esta a la izquierda (-)
-    metal_parameters = {
-        "metal_s": "metal1",
-        "width_metal1_conection": 0.38,
-        "DistanceFisrt_metal1_conection": -0.375,
-        "min_distance_between_m1": 0.26,
-    }
-
-    bulk_parameters = {
-        "bulk_plus": "pplus" if typeTransistor == "Nmos" else "nplus",
-        "typeTransistor": typeTransistor,
-    }
 
     # ej. foldding = 2, W = 4, x = 2     donde x es la cantida de finger a usar
 
-    transistor_parameters = {
+    params = {
         "l_gate": 0.28,
-        "w_gate": w_gate / folding if folding > 1 else w_gate,
+        "w_gate": (w_gate / folding if folding > 1 else w_gate),
         "sd_con_col": 1,  # numero de columnas de contacto en la difusion
         "inter_sd_l": 0.52,  # largo del canal entre finger
-        "nf": folding if folding > 1 else 1,
+        "nf": (folding if folding > 1 else 1),
         "grw": 0.38,
         "volt": "3.3V",
         "bulk": "None",
@@ -41,9 +30,48 @@ def drawTransistor(
         "label": 0,
         "sub_label": "",
         "patt_label": 0,
+        "metal_s": "metal1",
+        "width_metal1_conection": 0.38,
+        "DistanceFisrt_metal1_conection": -0.375,
+        "min_distance_between_m1": 0.26,
+        "bulk_plus": ("pplus" if typeTransistor == "Nmos" else "nplus"),
+        "typeTransistor": typeTransistor,
     }
 
     transistor = gf.Component(typeTransistor)
+
+    _add_fets(transistor, params)
+    _add_source(transistor, params)
+    _add_drain(transistor, params)
+    _add_poly_connect(transistor, params)
+    _add_bulk_contacts(transistor, params)
+    _add_bulk(transistor, params)
+
+    return transistor
+
+
+def _add_fets(transistor, params):
+    typeTransistor = params["typeTransistor"]
+
+    transistor_parameters = {
+        "l_gate": params["l_gate"],
+        "w_gate": params["w_gate"],
+        "sd_con_col": params["sd_con_col"],
+        "inter_sd_l": params["inter_sd_l"],
+        "nf": params["nf"],
+        "grw": params["grw"],
+        "volt": params["volt"],
+        "bulk": params["bulk"],
+        "con_bet_fin": params["con_bet_fin"],
+        "gate_con_pos": params["gate_con_pos"],
+        "interdig": params["interdig"],
+        "patt": params["patt"],
+        "deepnwell": params["deepnwell"],
+        "pcmpgr": params["pcmpgr"],
+        "label": params["label"],
+        "sub_label": params["sub_label"],
+        "patt_label": params["patt_label"],
+    }
 
     if typeTransistor == "Nmos":
         transistor << gf180.nfet(**transistor_parameters)
@@ -51,24 +79,16 @@ def drawTransistor(
     else:
         transistor << gf180.pfet(**transistor_parameters)
 
-    _add_source(transistor, transistor_parameters, metal_parameters)
-    _add_drain(transistor, transistor_parameters, metal_parameters)
-    _add_poly_connect(transistor, transistor_parameters, metal_parameters)
-    _add_bulk_contacts(transistor, transistor_parameters, metal_parameters)
-    _add_bulk(transistor, transistor_parameters, metal_parameters, bulk_parameters)
 
-    return transistor
+def _add_source(transistor, params):
+    nf = params["nf"]
+    l_gate = params["l_gate"]
+    inter_sd_l = params["inter_sd_l"]
 
-
-def _add_source(transistor, transistor_parameters, metal_parameters):
-    nf = transistor_parameters["nf"]
-    l_gate = transistor_parameters["l_gate"]
-    inter_sd_l = transistor_parameters["inter_sd_l"]
-
-    metal_s = metal_parameters["metal_s"]
-    width_metal1_conection = metal_parameters["width_metal1_conection"]
-    DistanceFisrt_metal1_conection = metal_parameters["DistanceFisrt_metal1_conection"]
-    min_distance_between_m1 = metal_parameters["min_distance_between_m1"]
+    metal_s = params["metal_s"]
+    width_metal1_conection = params["width_metal1_conection"]
+    DistanceFisrt_metal1_conection = params["DistanceFisrt_metal1_conection"]
+    min_distance_between_m1 = params["min_distance_between_m1"]
 
     if nf >= 2:
         # Add one horizontal source
@@ -133,15 +153,15 @@ def _add_source(transistor, transistor_parameters, metal_parameters):
         fet_source_vertical.move([DistanceFisrt_metal1_conection, -0.58])
 
 
-def _add_drain(transistor, transistor_parameters, metal_parameters):
-    nf = transistor_parameters["nf"]
-    l_gate = transistor_parameters["l_gate"]
-    w_gate_folding = transistor_parameters["w_gate"]
-    inter_sd_l = transistor_parameters["inter_sd_l"]
+def _add_drain(transistor, params):
+    nf = params["nf"]
+    l_gate = params["l_gate"]
+    w_gate_folding = params["w_gate"]
+    inter_sd_l = params["inter_sd_l"]
 
-    metal_s = metal_parameters["metal_s"]
-    width_metal1_conection = metal_parameters["width_metal1_conection"]
-    min_distance_between_m1 = metal_parameters["min_distance_between_m1"]
+    metal_s = params["metal_s"]
+    width_metal1_conection = params["width_metal1_conection"]
+    min_distance_between_m1 = params["min_distance_between_m1"]
 
     firstM1_drain = 0.425
 
@@ -193,9 +213,9 @@ def _add_drain(transistor, transistor_parameters, metal_parameters):
         drainMOS_m1_y.move([0.075 + 0.07 + l_gate, w_gate_folding - 0.06])
 
 
-def _add_poly_connect(transistor, transistor_parameters, metal_parameters):
-    nf = transistor_parameters["nf"]
-    w_gate_folding = transistor_parameters["w_gate"]
+def _add_poly_connect(transistor, params):
+    nf = params["nf"]
+    w_gate_folding = params["w_gate"]
 
     # poly conect
     poly_down = transistor << gf.components.rectangle(
@@ -205,24 +225,19 @@ def _add_poly_connect(transistor, transistor_parameters, metal_parameters):
     poly_down.movey(0.22 + w_gate_folding)
 
 
-def _add_bulk(
-    transistor: gf.Component,
-    transistor_parameters: dict,
-    metal_parameters: dict,
-    bulk_parameters: dict,
-):
-    nf = transistor_parameters["nf"]
-    l_gate = transistor_parameters["l_gate"]
-    w_gate_folding = transistor_parameters["w_gate"]
-    inter_sd_l = transistor_parameters["inter_sd_l"]
+def _add_bulk(transistor, params):
+    nf = params["nf"]
+    l_gate = params["l_gate"]
+    w_gate_folding = params["w_gate"]
+    inter_sd_l = params["inter_sd_l"]
 
-    metal_s = metal_parameters["metal_s"]
-    width_metal1_conection = metal_parameters["width_metal1_conection"]
-    DistanceFisrt_metal1_conection = metal_parameters["DistanceFisrt_metal1_conection"]
-    min_distance_between_m1 = metal_parameters["min_distance_between_m1"]
+    metal_s = params["metal_s"]
+    width_metal1_conection = params["width_metal1_conection"]
+    DistanceFisrt_metal1_conection = params["DistanceFisrt_metal1_conection"]
+    min_distance_between_m1 = params["min_distance_between_m1"]
 
-    bulk_plus = bulk_parameters["bulk_plus"]
-    typeTransistor = bulk_parameters["typeTransistor"]
+    bulk_plus = params["bulk_plus"]
+    typeTransistor = params["typeTransistor"]
 
     # COMP
     ######
@@ -341,11 +356,11 @@ def _add_bulk(
     )
 
 
-def _add_bulk_contacts(transistor, transistor_parameters, metal_parameters):
-    w_gate_folding = transistor_parameters["w_gate"]
-    nf = transistor_parameters["nf"]
-    l_gate = transistor_parameters["l_gate"]
-    inter_sd_l = transistor_parameters["inter_sd_l"]
+def _add_bulk_contacts(transistor, params):
+    w_gate_folding = params["w_gate"]
+    nf = params["nf"]
+    l_gate = params["l_gate"]
+    inter_sd_l = params["inter_sd_l"]
     numberContact = int(w_gate_folding / (0.22 + 0.28))
 
     # TODO: rewrite comment
