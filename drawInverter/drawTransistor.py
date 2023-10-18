@@ -2,20 +2,6 @@ import gf180
 import gdsfactory as gf
 
 
-def fingers_to_sources(F):
-    if F >= 2:
-        return 2 + (F - 2) // 2
-    else:
-        raise ValueError("F debe ser mayor o igual a 2")
-
-
-def fingers_to_drains(F):
-    if F >= 2:
-        return (F + 1) // 2
-    else:
-        raise ValueError("F debe estar entre 2 y 12 inclusive.")
-
-
 @gf.cell
 def drawTransistor(
     typeTransistor: str = "Nmos",  #  opcion de Nmos y Pmos
@@ -85,55 +71,66 @@ def _add_source(transistor, transistor_parameters, metal_parameters):
     min_distance_between_m1 = metal_parameters["min_distance_between_m1"]
 
     if nf >= 2:
+        # Add one horizontal source
+        ###########################
+
         # nf par -> sources = nf -1  and drain = nf -2      |   nf impar -> sources = nf -1  and drain = nf -1       #cantidad de sources y drains al hacer foldding
 
-        # hace una if para saber si nf es par o impar y un else para caso impar
-        if nf % 2 == 0:
-            Length_horizontal_metal1_conection = (
-                2 * (inter_sd_l - 0.07) + (nf - 1) * inter_sd_l + nf * l_gate
-            )
-        else:
-            Length_horizontal_metal1_conection = (
-                2 * (inter_sd_l - 0.07) + (nf - 2) * inter_sd_l + (nf - 1) * l_gate
-            )
+        temp_nf = nf if nf % 2 == 0 else nf - 1
 
-        sourceMOS_H = transistor << gf.components.rectangle(
-            size=(Length_horizontal_metal1_conection, width_metal1_conection),
+        horizontal_fet_source = transistor << gf.components.rectangle(
+            size=(
+                2 * (inter_sd_l - 0.07) + (temp_nf - 1) * inter_sd_l + temp_nf * l_gate,
+                width_metal1_conection,
+            ),
             layer=metal_s,
         )  # 3.72
-        sourceMOS_H.movex(DistanceFisrt_metal1_conection)
-        sourceMOS_H.movey(
+        horizontal_fet_source.movex(DistanceFisrt_metal1_conection)
+        # 0.06 pq me falto un poco y era más facil asi al igual que en el for
+        horizontal_fet_source.movey(
             -1 * width_metal1_conection - min_distance_between_m1 + 0.06
-        )  # 0.06 pq me falto un poco y era más facil asi al igual que en el for
+        )
 
-        sources = []  # List to store the references
-        sourceMOS_m1_y = gf.components.rectangle(
+        # Add multiple vertical sources
+        ###############################
+
+        # agregando el bulk del lado izquierdo
+        vertical_fet_source = gf.components.rectangle(
             size=(0.38, min_distance_between_m1), layer=metal_s
-        )  # agregando el bulk del lado izquierdo
-        sourceNP = fingers_to_sources(
-            nf
-        )  # cantidad de sources que hay al hacer el folding
-        for i in range(sourceNP):
-            sources.append(transistor << sourceMOS_m1_y)
+        )
 
-        for i, source in enumerate(sources):  # Start from the 1st index
+        # Number of sources with folding
+        vertical_source_total = 2 + (nf - 2) // 2
+
+        for i in range(vertical_source_total):
+            source = transistor << vertical_fet_source
+
             firstM = 0 if i == 0 else 0.07
-            secondM = secondM = 0.07 if i > 1 else 0
+            secondM = 0.07 if i > 1 else 0
+
+            source_dx = (
+                DistanceFisrt_metal1_conection
+                + firstM
+                + secondM * (i - 1)
+                + i * (width_metal1_conection + 0.07 + inter_sd_l)
+                + 2 * i * l_gate
+            )
+            source_dy = -min_distance_between_m1 + 0.06
             source.move(
                 [
-                    DistanceFisrt_metal1_conection
-                    + firstM
-                    + secondM * (i - 1)
-                    + i * (width_metal1_conection + 0.07 + inter_sd_l)
-                    + 2 * i * l_gate,
-                    -min_distance_between_m1 + 0.06,
+                    source_dx,
+                    source_dy,
                 ]
-            )  # Move the reference   izquierda
+            )
+
     else:
-        sourceMOS_m1_y = transistor << gf.components.rectangle(
+        # Add one vertical source
+        #########################
+
+        fet_source_vertical = transistor << gf.components.rectangle(
             size=(0.38, 0.64), layer=metal_s
         )
-        sourceMOS_m1_y.move([DistanceFisrt_metal1_conection, -0.58])
+        fet_source_vertical.move([DistanceFisrt_metal1_conection, -0.58])
 
 
 def _add_drain(transistor, transistor_parameters, metal_parameters):
@@ -146,47 +143,53 @@ def _add_drain(transistor, transistor_parameters, metal_parameters):
     width_metal1_conection = metal_parameters["width_metal1_conection"]
     min_distance_between_m1 = metal_parameters["min_distance_between_m1"]
 
-    # drain
     firstM1_drain = 0.425
+
     if nf >= 3:
-        if nf % 2 == 0:
-            Length_horizontal_metal1_conection = (
-                (inter_sd_l - 0.07) + (nf - 2) * inter_sd_l + (nf - 2) * l_gate - 0.07
-            )
-        else:
-            Length_horizontal_metal1_conection = (
-                (inter_sd_l - 0.07) + (nf - 1) * inter_sd_l + (nf - 1) * l_gate - 0.07
-            )
+        # Add one horizontal drain
+        ##########################
+
+        _nf = nf - 1 if nf % 2 == 0 else nf
 
         drainMOS_H = transistor << gf.components.rectangle(
-            size=(Length_horizontal_metal1_conection, width_metal1_conection),
+            size=(
+                (inter_sd_l - 0.07)
+                + (_nf - 1) * inter_sd_l
+                + (_nf - 1) * l_gate
+                - 0.07,
+                width_metal1_conection,
+            ),
             layer=metal_s,
         )  # 3.72
         drainMOS_H.movex(firstM1_drain)
-        drainMOS_H.movey(
-            w_gate_folding + min_distance_between_m1 - 0.06
-        )  # 0.06 pq me falto un poco y era más facil asi al igual que en el for
+        # 0.06 pq me falto un poco y era más facil asi al igual que en el for
+        drainMOS_H.movey(w_gate_folding + min_distance_between_m1 - 0.06)
 
-        drains = []  # List to store the references
+        # Add multiple vertical drains
+        ###############################
+
         drainMOS_m1_y = gf.components.rectangle(
             size=(0.38, min_distance_between_m1), layer=metal_s
         )  # agregando el bulk del lado izquierdo
-        drainNP = fingers_to_drains(
-            nf
-        )  # cantidad de sources que hay al hacer el folding
-        for i in range(drainNP):
-            drains.append(transistor << drainMOS_m1_y)
+        vertical_drains_total = (nf + 1) // 2
 
-        for i, drain in enumerate(drains):  # Start from the 1st index
+        for i in range(vertical_drains_total):
+            drain = transistor << drainMOS_m1_y
+
             drain.move(
                 [
                     0.075 + 0.07 + l_gate + (2 * inter_sd_l + 2 * l_gate) * i,
                     w_gate_folding - 0.06,
                 ]
             )
+
     else:
-        drainMOS_m1_y = gf.components.rectangle(size=(0.38, 0.64), layer=metal_s)
-        drainMOS_m1_y = transistor << drainMOS_m1_y
+        # Add one vertical drain
+        ########################
+
+        drainMOS_m1_y = transistor << gf.components.rectangle(
+            size=(0.38, 0.64), layer=metal_s
+        )
         drainMOS_m1_y.move([0.075 + 0.07 + l_gate, w_gate_folding - 0.06])
 
 
@@ -221,105 +224,121 @@ def _add_bulk(
     bulk_plus = bulk_parameters["bulk_plus"]
     typeTransistor = bulk_parameters["typeTransistor"]
 
-    # BULK
-    # Agregando el bulk left
-    bulk_comp_left = transistor << gf.components.rectangle(
-        size=(0.37, w_gate_folding), layer="comp"
-    )  # agregando el bulk del lado izquierdo
+    # COMP
+    ######
+
+    bulk_comp = gf.components.rectangle(size=(0.37, w_gate_folding), layer="comp")
+
+    bulk_comp_left = transistor << bulk_comp
     bulk_comp_left.movex(-3 * (0.36 + 0.01))
 
-    bulk_m1_left = transistor << gf.components.rectangle(
+    bulk_comp_right = transistor << bulk_comp
+    bulk_comp_right.movex(nf * (l_gate + inter_sd_l) + 0.37)
+
+    # METAL1
+    ########
+
+    bulk_m1 = gf.components.rectangle(
         size=(0.36, w_gate_folding - 2 * 0.08), layer="metal1"
-    )  # agregando el bulk del lado izquierdo
+    )
+
+    bulk_m1_left = transistor << bulk_m1
     bulk_m1_left.movex(-3 * (0.36 + 0.01))
     bulk_m1_left.movey(0.08)
 
-    bulk_plus_left = transistor << gf.components.rectangle(
-        size=(0.59 + 0.27, w_gate_folding + 2 * 0.23), layer=bulk_plus
-    )  # agregando el bulk del lado derecho   0.87-0.28=0.59
-    bulk_plus_left.movex(-1.11 - 0.27 - 0.01)
-    bulk_plus_left.movey(-0.23)
-
-    ## agregar if de nwell de pmos
-    if typeTransistor == "Pmos":
-        bulk_nwell_left = transistor << gf.components.rectangle(
-            size=(0.59 + 0.27, w_gate_folding + 2 * 0.43), layer="nwell"
-        )
-        bulk_nwell_left.movex(-1.38 - 0.27 - 0.01)
-        bulk_nwell_left.movey(-0.43)
-
-    # Agregando el bulk right
-    bulk_comp_right = transistor << gf.components.rectangle(
-        size=(0.37, w_gate_folding), layer="comp"
-    )  # agregando el bulk del lado derecho
-    bulk_comp_right.movex(nf * (l_gate + inter_sd_l) + 0.37)
-
-    bulk_m1_right = transistor << gf.components.rectangle(
-        size=(0.36, w_gate_folding - 2 * 0.08), layer="metal1"
-    )  # agregando el bulk del derecho
+    bulk_m1_right = transistor << bulk_m1
     bulk_m1_right.movex(nf * (l_gate + inter_sd_l) + 0.37)
     bulk_m1_right.movey(0.08)
 
-    bulk_plus_right = transistor << gf.components.rectangle(
+    # PLUS
+    ######
+
+    # agregando el bulk del lado derecho   0.87-0.28=0.59
+    bulk_plus = gf.components.rectangle(
         size=(0.59 + 0.27, w_gate_folding + 2 * 0.23), layer=bulk_plus
-    )  # agregando el bulk del lado derecho   0.87-0.28=0.59
+    )
+
+    bulk_plus_left = transistor << bulk_plus
+    bulk_plus_left.movex(-1.11 - 0.27 - 0.01)
+    bulk_plus_left.movey(-0.23)
+
+    bulk_plus_right = transistor << bulk_plus
     bulk_plus_right.movex(nf * (l_gate + inter_sd_l) + 0.16)
     bulk_plus_right.movey(-0.23)
 
+    # NWELL
+    #######
+
     if typeTransistor == "Pmos":
-        bulk_nwell_right = transistor << gf.components.rectangle(
+        bulk_nwell = gf.components.rectangle(
             size=(0.59 + 0.27, w_gate_folding + 2 * 0.43), layer="nwell"
         )
+
+        bulk_nwell_left = transistor << bulk_nwell
+        bulk_nwell_left.movex(-1.38 - 0.27 - 0.01)
+        bulk_nwell_left.movey(-0.43)
+
+        bulk_nwell_right = transistor << bulk_nwell
         bulk_nwell_right.movex(nf * (l_gate + inter_sd_l) + 0.43)
         bulk_nwell_right.movey(-0.43)
-    # conect BULK and source
-    bulk_m1_left = transistor << gf.components.rectangle(
+
+    # CONNECTION BULK SOURCE
+    ########################
+
+    bulk_m1_template1 = gf.components.rectangle(
         size=(0.36, min_distance_between_m1 + 0.02), layer=metal_s
-    )  # agregando el bulk del lado izquierdo
-    bulk_m1_left.movex(2 * DistanceFisrt_metal1_conection - 0.36)
-    bulk_m1_left.movey(-min_distance_between_m1 + 0.06)
+    )
+
+    bulk_m1_left = transistor << bulk_m1_template1
+    bulk_m1_left.move(
+        [2 * DistanceFisrt_metal1_conection - 0.36, -min_distance_between_m1 + 0.06]
+    )
+
+    bulk_m1_right = transistor << bulk_m1_template1
+    bulk_m1_right.move(
+        [
+            DistanceFisrt_metal1_conection
+            + nf * l_gate
+            + nf * inter_sd_l
+            + width_metal1_conection
+            + 0.365,
+            -min_distance_between_m1 + 0.06,
+        ]
+    )
+
+    # CONNECT
+    #########
+
+    # el lado derecho tiene 2 opciones dependiendo de si es par o impar
+    m1_bulk_horizontal_length = 0.36 + 0.365
+    _nf = nf
+    if nf % 2 != 0:
+        m1_bulk_horizontal_length += 0.07 * 2 + width_metal1_conection + l_gate
+        _nf = nf - 1
 
     bulk_m1_left_conect = transistor << gf.components.rectangle(
         size=(0.375 + 0.36, 0.38), layer=metal_s
-    )  # agregando el bulk del lado izquierdo
-    bulk_m1_left_conect.movex(2 * DistanceFisrt_metal1_conection - 0.36)
-    bulk_m1_left_conect.movey(
-        -1 * width_metal1_conection - min_distance_between_m1 + 0.06
     )
-
-    # el lado derecho tiene 2 opciones dependiendo de si es par o impar
-    if nf % 2 == 0:
-        Length_horizontal_metal1_conection_bulk = 0.36 + 0.365
-        N_b_m1 = nf
-    else:
-        Length_horizontal_metal1_conection_bulk = (
-            0.07 * 2 + width_metal1_conection + 0.36 + 0.365 + l_gate
-        )
-        N_b_m1 = nf - 1
+    bulk_m1_left_conect.move(
+        [
+            2 * DistanceFisrt_metal1_conection - 0.36,
+            -1 * width_metal1_conection - min_distance_between_m1 + 0.06,
+        ]
+    )
 
     bulk_m1_right_conect = transistor << gf.components.rectangle(
-        size=(Length_horizontal_metal1_conection_bulk, width_metal1_conection),
+        size=(m1_bulk_horizontal_length, width_metal1_conection),
         layer=metal_s,
-    )  # agregando el bulk del lado izquierdo
-    bulk_m1_right_conect.movex(
-        DistanceFisrt_metal1_conection
-        + N_b_m1 * l_gate
-        + N_b_m1 * inter_sd_l
-        + width_metal1_conection
     )
-    bulk_m1_right_conect.movey(-min_distance_between_m1 + 0.06 - width_metal1_conection)
-
-    bulk_m1_right = transistor << gf.components.rectangle(
-        size=(0.36, min_distance_between_m1 + 0.02), layer=metal_s
-    )  # agregando el bulk del lado izquierdo
-    bulk_m1_right.movex(
-        DistanceFisrt_metal1_conection
-        + nf * l_gate
-        + nf * inter_sd_l
-        + width_metal1_conection
-        + 0.365
+    bulk_m1_right_conect.move(
+        [
+            DistanceFisrt_metal1_conection
+            + _nf * l_gate
+            + _nf * inter_sd_l
+            + width_metal1_conection,
+            -min_distance_between_m1 + 0.06 - width_metal1_conection,
+        ]
     )
-    bulk_m1_right.movey(-min_distance_between_m1 + 0.06)
 
 
 def _add_bulk_contacts(transistor, transistor_parameters, metal_parameters):
@@ -327,30 +346,21 @@ def _add_bulk_contacts(transistor, transistor_parameters, metal_parameters):
     nf = transistor_parameters["nf"]
     l_gate = transistor_parameters["l_gate"]
     inter_sd_l = transistor_parameters["inter_sd_l"]
-
-    # cantidadda de contactos en la difusion viene dados por W_gate / (0.22 + 0.28)-> 0.22 ancho de contacto y 0.28 ceparacion entre contactos
-    refs = []  # List to store the references
     numberContact = int(w_gate_folding / (0.22 + 0.28))
-    bulK_contact_left = gf.components.rectangle(
-        size=(0.22, 0.22), layer="contact"
-    )  # agregando el bulk del lado izquierdo
+
+    # TODO: rewrite comment
+    # cantidadda de contactos en la difusion viene dados por W_gate / (0.22 + 0.28)-> 0.22 ancho de contacto y 0.28 ceparacion entre contactos
+    bulk_contact = gf.components.rectangle(size=(0.22, 0.22), layer="contact")
+
     for i in range(numberContact):
-        refs.append(transistor << bulK_contact_left)
+        ref1 = transistor << bulk_contact
+        ref2 = transistor << bulk_contact
 
-    for i, ref in enumerate(refs):  # Start from the 1st index
-        ref.move(
-            [-1 * (0.72 + 0.085 + 0.22 + 0.01), 0.28 * i + 0.22 * i + 0.14]
-        )  # Move the reference   izquierda
+        ref1_dx = -1 * (0.72 + 0.085 + 0.22 + 0.01)
+        ref1_dy = 0.28 * i + 0.22 * i + 0.14
 
-    # contactos lado derecho
-    refs2 = []  # List to store the references
-    bulK_contact_right = gf.components.rectangle(
-        size=(0.22, 0.22), layer="contact"
-    )  # agregando el bulk del lado izquierdo
-    for i in range(numberContact):
-        refs2.append(transistor << bulK_contact_right)
+        ref2_dx = nf * (l_gate + inter_sd_l) + 0.445
+        ref2_dy = ref1_dy
 
-    for i, ref in enumerate(refs2):  # Start from the 1st index
-        ref.move(
-            [nf * (l_gate + inter_sd_l) + 0.445, 0.28 * i + 0.22 * i + 0.14]
-        )  # Move the reference   izquierda
+        ref1.move([ref1_dx, ref1_dy])
+        ref2.move([ref2_dx, ref2_dy])
