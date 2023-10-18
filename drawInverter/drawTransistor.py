@@ -58,9 +58,9 @@ def drawTransistor(
             patt="",
             deepnwell=0,
             pcmpgr=0,
-            lbl=0,  # Cambia 'label' por 'lbl'
-            sub_lbl="",
-            patt_lbl=0,
+            label=0,  # Cambia 'label' por 'label'
+            sub_label="",
+            patt_label=0,
         )
 
         bulk_plus = "pplus"
@@ -81,9 +81,9 @@ def drawTransistor(
             patt="",
             deepnwell=0,
             pcmpgr=0,
-            lbl=0,  # Cambia 'label' por 'lbl'
-            sub_lbl="",
-            patt_lbl=0,
+            label=0,  # Cambia 'label' por 'label'
+            sub_label="",
+            patt_label=0,
         )
         bulk_plus = "nplus"
 
