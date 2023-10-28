@@ -5,6 +5,7 @@ from .drawTransistor import drawTransistor
 
 @gf.cell
 def drawInverter(
+    layout,
     w_gate_Nmos: float = 2,
     folding_Nmos: int = 1,
     w_gate_Pmos: float = 2,
@@ -13,6 +14,7 @@ def drawInverter(
     top = gf.Component("TOP")
 
     params = {
+        "layout": layout,
         "w_gate_Nmos": w_gate_Nmos,
         "folding_Nmos": folding_Nmos,
         "w_gate_Pmos": w_gate_Pmos,
@@ -43,6 +45,7 @@ def drawInverter(
 
 
 def _add_transistors(top, params):
+    layout = params["layout"]
     w_gate_Nmos = params["w_gate_Nmos"]
     folding_Nmos = params["folding_Nmos"]
     w_gate_Pmos = params["w_gate_Pmos"]
@@ -51,8 +54,8 @@ def _add_transistors(top, params):
     w_gate_folding_P = params["w_gate_folding_P"]
 
     # Nmos  pull_down
-    pull_down = top << drawTransistor("Nmos", w_gate_Nmos, folding_Nmos)
-    pull_up = top << drawTransistor("Pmos", w_gate_Pmos, folding_Pmos)
+    pull_down = top << drawTransistor(layout, "Nmos", w_gate_Nmos, folding_Nmos)
+    pull_up = top << drawTransistor(layout, "Pmos", w_gate_Pmos, folding_Pmos)
 
     pull_up.mirror_y(y0=w_gate_folding_P / 2)
     pull_up.movey(w_gate_folding_N + 2)

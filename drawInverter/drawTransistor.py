@@ -1,9 +1,10 @@
-import gf180
+from cells.draw_fet import draw_nfet, draw_pfet
 import gdsfactory as gf
 
 
 @gf.cell
 def drawTransistor(
+    layout,
     typeTransistor: str = "Nmos",  #  opcion de Nmos y Pmos
     w_gate: float = 2,
     folding: int = 1,
@@ -13,6 +14,7 @@ def drawTransistor(
     # ej. foldding = 2, W = 4, x = 2     donde x es la cantida de finger a usar
 
     params = {
+        "layout": layout,
         "l_gate": 0.28,
         "w_gate": (w_gate / folding if folding > 1 else w_gate),
         "sd_con_col": 1,  # numero de columnas de contacto en la difusion
@@ -27,9 +29,9 @@ def drawTransistor(
         "patt": "",
         "deepnwell": 0,
         "pcmpgr": 0,
-        "label": 0,
-        "sub_label": "",
-        "patt_label": 0,
+        "lbl": 0,
+        "sub_lbl": "",
+        "patt_lbl": 0,
         "metal_s": "metal1",
         "width_metal1_conection": 0.38,
         "DistanceFisrt_metal1_conection": -0.375,
@@ -41,11 +43,11 @@ def drawTransistor(
     transistor = gf.Component(typeTransistor)
 
     _add_fets(transistor, params)
-    _add_source(transistor, params)
-    _add_drain(transistor, params)
-    _add_poly_connect(transistor, params)
-    _add_bulk_contacts(transistor, params)
-    _add_bulk(transistor, params)
+    # _add_source(transistor, params)
+    # _add_drain(transistor, params)
+    # _add_poly_connect(transistor, params)
+    # _add_bulk_contacts(transistor, params)
+    # _add_bulk(transistor, params)
 
     return transistor
 
@@ -54,6 +56,7 @@ def _add_fets(transistor, params):
     typeTransistor = params["typeTransistor"]
 
     transistor_parameters = {
+        "layout": params["layout"],
         "l_gate": params["l_gate"],
         "w_gate": params["w_gate"],
         "sd_con_col": params["sd_con_col"],
@@ -68,16 +71,16 @@ def _add_fets(transistor, params):
         "patt": params["patt"],
         "deepnwell": params["deepnwell"],
         "pcmpgr": params["pcmpgr"],
-        "label": params["label"],
-        "sub_label": params["sub_label"],
-        "patt_label": params["patt_label"],
+        "lbl": params["lbl"],
+        "sub_lbl": params["sub_lbl"],
+        "patt_lbl": params["patt_lbl"],
     }
 
     if typeTransistor == "Nmos":
-        transistor << gf180.nfet(**transistor_parameters)
+        transistor << draw_nfet(**transistor_parameters)
 
     else:
-        transistor << gf180.pfet(**transistor_parameters)
+        transistor << draw_pfet(**transistor_parameters)
 
 
 def _add_source(transistor, params):
