@@ -35,7 +35,29 @@ function add-gf180 () {
     cd $BASE_DIR
 }
 
+function add-pdk-pcells () {
+    case `grep -F 'PYTHONPATH=$KLAYOUT_HOME/pymacros' ~/.bashrc  >/dev/null; echo $?` in
+        0)
+            # Do nothing
+            ;;
+        1)
+            echo "" >> ~/.bashrc
+            echo export PYTHONPATH=\$KLAYOUT_HOME/pymacros >> ~/.bashrc
+            export PYTHONPATH=$KLAYOUT_HOME/pymacros:$PYTHONPATH
+            ;;
+        *)
+            echo ERROR
+            ;;
+    esac
+}
+
+function symlink-pdk() {
+    ln -s $KLAYOUT_HOME/pymacros/cells/ cells >> /dev/null
+}
+
 add-trusted-git
 add-klive
-remove-gf180
-add-gf180
+# remove-gf180
+# add-gf180
+# add-pdk-pcells
+symlink-pdk
