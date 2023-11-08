@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description/>
+ <version/>
+ <category>pymacros</category>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>true</autorun>
+ <autorun-early>false</autorun-early>
+ <priority>0</priority>
+ <shortcut/>
+ <show-in-menu>false</show-in-menu>
+ <group-name/>
+ <menu-path/>
+ <interpreter>python</interpreter>
+ <dsl-interpreter-name/>
+ <text>
+
+import sys
+import os
+from importlib import reload
+
+technology_macros_path = os.path.dirname(os.path.abspath(__file__))
+if technology_macros_path not in sys.path:
+  sys.path.insert(0, technology_macros_path)
+
+import pcells_lym
+reload(pcells_lym)
+
+# Instantiate and register the library
+pcells_lym.ChileCellsModuleLym()
+
+print("## ChileCellsModule loaded.")
+print(sys.path)
+
+</text>
+</klayout-macro>

@@ -10,3 +10,12 @@ should be solved in the docker container, except klayout plugins.
 
 Only Klive plugin is required. Open Klayout and in the **Tools** toolbar, search and download 
 klive plugin on **Manage Package** menu.
+
+
+## How to Link local PCells into Klayout
+
+PCells are grouped in libraries, a library can be registered with a macro.
+
+## How to reload a modified library
+
+**TODO: This file is a bit oudated**

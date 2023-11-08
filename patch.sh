@@ -51,13 +51,19 @@ function add-pdk-pcells () {
     esac
 }
 
-function symlink-pdk() {
+function symlink-pcells() {
     ln -s $KLAYOUT_HOME/pymacros/cells/ cells >> /dev/null
 }
 
+function symlink-mypcells() {
+    ln -s $PWD/libraries/ChileCells_Module $KLAYOUT_HOME/pymacros/ >> /dev/null
+}
+
 add-trusted-git
-add-klive
+# add-klive       # We are not using klive
 # remove-gf180
-# add-gf180
+# add-gf180       # Totally unnecesary
 # add-pdk-pcells
-symlink-pdk
+symlink-pcells
+
+# symlink-mypcells
