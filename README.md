@@ -19,3 +19,10 @@ PCells are grouped in libraries, a library can be registered with a macro.
 ## How to reload a modified library
 
 **TODO: This file is a bit oudated**
+
+
+# FAQ
+
+## Why not use PySpice instead of Ngspyce?
+
+Because the PDK uses ngspice 41 and PySpice is not compatible with that.

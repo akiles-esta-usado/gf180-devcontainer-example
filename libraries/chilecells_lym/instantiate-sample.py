@@ -1,7 +1,7 @@
 # https://www.klayout.de/forum/discussion/2319/coding-a-path-via-python
 # https://www.klayout.de/forum/discussion/comment/9854#Comment_9854
 
-import pya
+import pya  # Klayout Python API
 from pprint import pprint
 
 
@@ -180,10 +180,33 @@ def test3(layout, viewed_cell, cell):
     #  'write'
 
 
+@drawer
+def test4(layout, viewed_cell, cell):
+    """
+    Use existing draw_* functions and generate gf.Components with their gds
+    See how to get internal structures
+    """
+    import gdsfactory as gf
+    from cells.draw_fet import draw_pfet
+
+    instance = draw_pfet(layout=layout, l_gate=0.7, w_gate=5)
+
+    write_cells = pya.CellInstArray(
+        instance.cell_index(),
+        pya.Trans(pya.Point(0, 0)),
+        pya.Vector(0, 0),
+        pya.Vector(0, 0),
+        1,
+        1,
+    )
+    cell.insert(write_cells)
+    cell.flatten(1)
+
+
 # =========================================
 # Test Execution
 
-test1()
+# test1()
 # test2()
 # test3()
 
