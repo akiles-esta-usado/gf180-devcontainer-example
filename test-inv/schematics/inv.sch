@@ -34,8 +34,8 @@ lab=vss}
 N 1340 -310 1350 -310 {
 lab=vss}
 C {symbols/pfet_03v3.sym} 1320 -390 0 0 {name=M1
-L=0.28u
-W=0.22u
+L=0.280u
+W=0.720u
 nf=1
 m=1
 ad="'int((nf+1)/2) * W/nf * 0.18u'"
@@ -48,8 +48,8 @@ model=pfet_03v3
 spiceprefix=X
 }
 C {symbols/nfet_03v3.sym} 1320 -310 0 0 {name=M2
-L=0.28u
-W=0.22u
+L=0.280u
+W=0.360u
 nf=1
 m=1
 ad="'int((nf+1)/2) * W/nf * 0.18u'"
