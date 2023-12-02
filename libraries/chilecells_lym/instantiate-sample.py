@@ -207,7 +207,7 @@ def test4(layout, viewed_cell, cell):
 # Test Execution
 
 # test1()
-# test2()
+test2()
 # test3()
 
 # =========================================

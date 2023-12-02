@@ -11,18 +11,7 @@ should be solved in the docker container, except klayout plugins.
 Only Klive plugin is required. Open Klayout and in the **Tools** toolbar, search and download 
 klive plugin on **Manage Package** menu.
 
+## Tasks to be Done
 
-## How to Link local PCells into Klayout
-
-PCells are grouped in libraries, a library can be registered with a macro.
-
-## How to reload a modified library
-
-**TODO: This file is a bit oudated**
-
-
-# FAQ
-
-## Why not use PySpice instead of Ngspyce?
-
-Because the PDK uses ngspice 41 and PySpice is not compatible with that.
+- [ ] Use pcells to create a gds and link with gdsfactory
+- [ ] Analyze what can be infered with instance parameters and linked gds.
